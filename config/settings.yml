@@ -1,0 +1,43 @@
+plugins:
+  moetwemoji_enabled:
+    default: true
+    client: false
+
+  # Emoji shortcode will be: :<prefix><separator><filename>:
+  # Example: :moetwemoji_100:
+  moetwemoji_prefix:
+    default: "moetwemoji"
+    client: false
+
+  moetwemoji_separator:
+    default: "_"
+    client: false
+
+  # Import modes:
+  # - gif_only:      import emoji/gif only
+  # - avif_only:     import emoji/avif only
+  # - fakepng_only:  import emoji/fakepng only (EXPERIMENTAL)
+  # - gif_and_avif:  import gif and avif
+  # - all_three:     import gif, avif, and fakepng
+  moetwemoji_import_mode:
+    default: gif_and_avif
+    client: false
+    type: enum
+    choices:
+      - gif_only
+      - avif_only
+      - fakepng_only
+      - gif_and_avif
+      - all_three
+
+  moetwemoji_group_name_gif:
+    default: "Moetwemoji (GIF)"
+    client: false
+
+  moetwemoji_group_name_avif:
+    default: "Moetwemoji (AVIF)"
+    client: false
+
+  moetwemoji_group_name_fakepng:
+    default: "Moetwemoji (FakePNG/AVIF) [Experimental]"
+    client: false
