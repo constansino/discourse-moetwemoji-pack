@@ -13,24 +13,6 @@ This repo supports **three** variants:
 Discourse supports modern image uploads (including **avif**) by default, and admins can further control allowed extensions via site settings.  
 See: "Understanding Uploads, Images, and Attachments" on Discourse Meta.
 
-## Prepare assets (Windows)
-
-You have three source directories, for example:
-
-- `C:\Users\1\love\moetwemoji72x72gif\100.gif`
-- `C:\Users\1\love\moetwemoji72x72avif\100.avif`
-- `C:\Users\1\love\moetwemoji72x72fakepng(avif)\100.png`
-
-Copy them into the repo:
-
-```powershell
-$gifSrc     = "C:\Users\1\love\moetwemoji72x72gif"
-$avifSrc    = "C:\Users\1\love\moetwemoji72x72avif"
-$fakePngSrc = "C:\Users\1\love\moetwemoji72x72fakepng(avif)"
-
-.\scripts\prepare-assets.ps1 -GifSource $gifSrc -AvifSource $avifSrc -FakePngSource $fakePngSrc
-.\scripts\verify-assets.ps1
-```
 
 ## Install on your Discourse (Docker)
 
@@ -87,4 +69,4 @@ When importing as **custom emoji uploads**, fakepng is **not guaranteed** to wor
 
 ## Licensing / attribution
 
-If your assets are derived from Google Noto Emoji, keep the relevant license and attribution (Apache 2.0 for tools/most images; OFL for fonts; flags have their own notes).
+If assets are derived from Google Noto Emoji, keep the relevant license and attribution (Apache 2.0 for tools/most images; OFL for fonts; flags have their own notes).
