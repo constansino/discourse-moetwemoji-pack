@@ -3,7 +3,16 @@
 ![crab](https://github.com/user-attachments/assets/43d8b011-94db-4945-9655-1dd415ab6969)
 
 
-# discourse-moetwemoji-pack
+# Discourse Moetwemoji Pack
+
+This plugin adds Moetwemoji as an additional emoji pack to your Discourse forum.
+
+## ℹ️ Note
+
+**This is the Supplement Version.**
+This plugin adds Moetwemoji as a separate custom emoji group and does **not** replace the default system emojis.
+
+> If you prefer to **completely override** the default Twemoji set with Moetwemoji, please use the **[Discourse Moetwemoji Twemoji FakePNG Override](https://github.com/constansino/discourse-moetwemoji-twemoji-fakepng-override)** instead.
 
 Adds **Moetwemoji** animated emoji packs to Discourse as **Custom Emoji groups** 
 This repo supports **three** variants:
