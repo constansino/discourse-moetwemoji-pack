@@ -20,7 +20,7 @@ plugins:
   # - gif_and_avif:  import gif and avif
   # - all_three:     import gif, avif, and fakepng
   moetwemoji_import_mode:
-    default: gif_and_avif
+    default: fakepng_only
     client: false
     type: enum
     choices:
