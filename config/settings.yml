@@ -30,14 +30,22 @@ plugins:
       - gif_and_avif
       - all_three
 
+  # IMPORTANT: some Discourse installs limit custom_emojis.group to 20 chars.
+  # Keep these short.
   moetwemoji_group_name_gif:
-    default: "Moetwemoji (GIF)"
+    default: "Moetwemoji GIF"
     client: false
 
   moetwemoji_group_name_avif:
-    default: "Moetwemoji (AVIF)"
+    default: "Moetwemoji AVIF"
     client: false
 
   moetwemoji_group_name_fakepng:
-    default: "Moetwemoji (FakePNG/AVIF) [Experimental]"
+    default: "Moetwemoji FPNG"
+    client: false
+
+  # IMPORTANT: some Discourse installs limit custom_emojis.name to 20 chars.
+  # If enabled, long names will be shortened deterministically to fit.
+  moetwemoji_enforce_name_limit:
+    default: true
     client: false
