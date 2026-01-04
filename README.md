@@ -1,7 +1,6 @@
 # discourse-moetwemoji-pack
 
-Adds **Moetwemoji** animated emoji packs to Discourse as **Custom Emoji groups** (does **not** replace your existing emoji set like openmoji/twemoji).
-
+Adds **Moetwemoji** animated emoji packs to Discourse as **Custom Emoji groups** 
 This repo supports **three** variants:
 
 - `emoji/gif/*.gif` (best compatibility)
