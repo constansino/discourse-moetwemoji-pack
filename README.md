@@ -1,3 +1,8 @@
+![1st_place_medal](https://github.com/user-attachments/assets/9a21c5e8-1773-4471-9a15-d109211f4fef)
+![confused](https://github.com/user-attachments/assets/b5ed7b93-b5ba-4a4b-9bd2-6cfc370d8cb2)
+![crab](https://github.com/user-attachments/assets/43d8b011-94db-4945-9655-1dd415ab6969)
+
+
 # discourse-moetwemoji-pack
 
 Adds **Moetwemoji** animated emoji packs to Discourse as **Custom Emoji groups** 
@@ -38,19 +43,21 @@ cd /var/discourse
 Run inside the container:
 
 ```bash
+cd /var/discourse
 ./launcher enter app
+
+su - discourse
 cd /var/www/discourse
 
 RAILS_ENV=production bundle exec rake moetwemoji:import
-# RAILS_ENV=production bundle exec rake moetwemoji:reimport
 ```
 
 Import behavior is controlled by `moetwemoji_import_mode` (Admin → Settings):
 
 - `gif_only`
 - `avif_only`
-- `fakepng_only` (experimental)
-- `gif_and_avif` (default)
+- `fakepng_only` (default)
+- `gif_and_avif` 
 - `all_three`
 
 ## Shortcodes
