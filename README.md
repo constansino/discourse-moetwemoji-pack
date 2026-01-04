@@ -23,7 +23,7 @@ hooks:
     - exec:
         cd: $home/plugins
         cmd:
-          - git clone https://github.com/<YOU>/discourse-moetwemoji-pack.git
+          - git clone https://github.com/constansino/discourse-moetwemoji-pack.git
 ```
 
 Then rebuild:
