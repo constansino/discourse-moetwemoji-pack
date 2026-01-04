@@ -1,5 +1,7 @@
 # frozen_string_literal: true
+
 require "fileutils"
+require "digest"
 
 namespace :moetwemoji do
   def plugin_root
@@ -17,16 +19,51 @@ namespace :moetwemoji do
     s
   end
 
+  def column_limit(model, col)
+    if model.respond_to?(:columns_hash) && model.columns_hash[col]
+      model.columns_hash[col].limit
+    end
+  rescue
+    nil
+  end
+
+  def fit_group_name(group_name)
+    limit = column_limit(CustomEmoji, "group") || 20
+    g = group_name.to_s
+    g = g[0, limit] if g.length > limit
+    g
+  end
+
+  def fit_emoji_name(name)
+    limit = column_limit(CustomEmoji, "name") || 20
+    return name if name.length <= limit
+
+    # Deterministic shorten: keep prefix part, add hash suffix.
+    # Example: moetwemoji_1st_pl_a1b2
+    hash = Digest::SHA1.hexdigest(name)[0, 4]
+    # Leave room for "_" + hash
+    room = limit - (1 + hash.length)
+    if room <= 0
+      return hash[0, limit]
+    end
+
+    short = name[0, room]
+    short = short.sub(/_+$/, "") # avoid trailing underscore pileups
+    "#{short}_#{hash}"[0, limit]
+  end
+
   def build_shortcode(base_name)
     prefix = sanitize_name(SiteSetting.moetwemoji_prefix.to_s)
     sep_raw = SiteSetting.moetwemoji_separator.to_s
-    # separator is used verbatim but sanitized to safe chars (or empty)
-    sep = sep_raw.to_s
-    sep = "" if sep.nil?
-    sep = sep.gsub(SAFE, "")
+    sep = (sep_raw || "").to_s.gsub(SAFE, "")
     name = sanitize_name(base_name)
+    full = "#{prefix}#{sep}#{name}"
 
-    "#{prefix}#{sep}#{name}"
+    if SiteSetting.moetwemoji_enforce_name_limit
+      fit_emoji_name(full)
+    else
+      full
+    end
   end
 
   def ensure_enabled!
@@ -40,16 +77,12 @@ namespace :moetwemoji do
     dir = File.join(plugin_root, "emoji", variant)
     patterns =
       case variant
-      when "gif"
-        ["*.gif"]
-      when "avif"
-        ["*.avif"]
-      when "fakepng"
-        ["*.png"]
+      when "gif" then ["*.gif"]
+      when "avif" then ["*.avif"]
+      when "fakepng" then ["*.png"]
       else
         raise "Unknown variant: #{variant}"
       end
-
     files = patterns.flat_map { |p| Dir.glob(File.join(dir, p)) }.uniq.sort
     [dir, files]
   end
@@ -57,10 +90,11 @@ namespace :moetwemoji do
   def import_variant!(variant:, group_name:)
     ensure_enabled!
 
-    group = CustomEmojiGroup.find_or_create_by!(name: group_name)
-    system_user = Discourse.system_user
+    group = fit_group_name(group_name)
 
+    system_user = Discourse.system_user
     dir, files = files_for_variant(variant)
+
     if files.empty?
       puts "No files found for variant=#{variant} in #{dir}"
       return { imported: 0, skipped: 0, failed: 0 }
@@ -82,7 +116,7 @@ namespace :moetwemoji do
       File.open(path, "rb") do |f|
         upload = UploadCreator.new(f, "custom_emoji").create_for(system_user.id)
         if upload&.persisted?
-          CustomEmoji.create!(name: shortcode, upload: upload, custom_emoji_group: group)
+          CustomEmoji.create!(name: shortcode, upload: upload, group: group)
           imported += 1
         else
           failed += 1
@@ -93,6 +127,8 @@ namespace :moetwemoji do
       failed += 1
       puts "Error importing #{path}: #{e.class} #{e.message}"
     end
+
+    Emoji.clear_cache if defined?(Emoji)
 
     { imported: imported, skipped: skipped, failed: failed }
   end
@@ -127,31 +163,27 @@ namespace :moetwemoji do
       puts "  #{k}: imported=#{v[:imported]} skipped=#{v[:skipped]} failed=#{v[:failed]}"
     end
 
-    if mode.include?("fakepng")
-      puts "NOTE: fakepng is experimental. If imports fail or animations break, use GIF for max compatibility."
-    end
-
-    puts "Tip: Custom emoji groups show near the bottom of the emoji picker in the composer UI."
+    puts "NOTE: Custom emoji do NOT appear in the Emoji Set dropdown. They appear as custom groups near the bottom of the picker."
   end
 
   desc "Delete emojis created by this plugin (matches prefix and configured groups)"
   task delete: :environment do
+    ensure_enabled!
+
     prefix = sanitize_name(SiteSetting.moetwemoji_prefix.to_s)
     sep = SiteSetting.moetwemoji_separator.to_s.gsub(SAFE, "")
     like_prefix = "#{prefix}#{sep}%"
 
     groups = [
-      SiteSetting.moetwemoji_group_name_gif.to_s,
-      SiteSetting.moetwemoji_group_name_avif.to_s,
-      SiteSetting.moetwemoji_group_name_fakepng.to_s
+      fit_group_name(SiteSetting.moetwemoji_group_name_gif.to_s),
+      fit_group_name(SiteSetting.moetwemoji_group_name_avif.to_s),
+      fit_group_name(SiteSetting.moetwemoji_group_name_fakepng.to_s)
     ].uniq
 
-    scope = CustomEmoji.where("name LIKE ?", like_prefix)
-    group_ids = CustomEmojiGroup.where(name: groups).pluck(:id)
-    scope = scope.where(custom_emoji_group_id: group_ids) unless group_ids.empty?
-
+    scope = CustomEmoji.where("name LIKE ?", like_prefix).where(group: groups)
     count = scope.count
     scope.find_each(&:destroy!)
+    Emoji.clear_cache if defined?(Emoji)
     puts "Deleted #{count} custom emojis."
   end
 
@@ -159,5 +191,17 @@ namespace :moetwemoji do
   task reimport: :environment do
     Rake::Task["moetwemoji:delete"].invoke
     Rake::Task["moetwemoji:import"].invoke
+  end
+
+  task import_gif: :environment do
+    import_variant!(variant: "gif", group_name: SiteSetting.moetwemoji_group_name_gif)
+  end
+
+  task import_avif: :environment do
+    import_variant!(variant: "avif", group_name: SiteSetting.moetwemoji_group_name_avif)
+  end
+
+  task import_fakepng: :environment do
+    import_variant!(variant: "fakepng", group_name: SiteSetting.moetwemoji_group_name_fakepng)
   end
 end
