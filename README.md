@@ -1,6 +1,7 @@
 ![1st_place_medal](https://github.com/user-attachments/assets/9a21c5e8-1773-4471-9a15-d109211f4fef)
 ![confused](https://github.com/user-attachments/assets/b5ed7b93-b5ba-4a4b-9bd2-6cfc370d8cb2)
 ![crab](https://github.com/user-attachments/assets/43d8b011-94db-4945-9655-1dd415ab6969)
+![PixPin_2026-01-04_22-04-17](https://github.com/user-attachments/assets/c80ff4ef-6c45-4184-8853-d00d52a3c476)
 
 
 # Discourse Moetwemoji Pack
